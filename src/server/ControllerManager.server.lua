@@ -9,6 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local conveyorModel: Model = workspace:WaitForChild("Conveyor")
 local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 local DesignateController = Remotes:WaitForChild("DesignateController")
+local GetControllerStatus = Remotes:WaitForChild("GetControllerStatus")
 local SetSpawnRate = Remotes:WaitForChild("SetSpawnRate")
 
 local currentController: Player? = nil
@@ -57,12 +58,17 @@ if #Players:GetPlayers() > 0 and currentController == nil then
 	assignController(Players:GetPlayers()[1])
 end
 
+-- remote function to allow the client to know who the controller is (slightly hacky, the useEffect on React was unreliable for studio testing)
+GetControllerStatus.OnServerInvoke = function(player)
+    return player == currentController
+end
+
 -- handle changes requested by the controller
 SetSpawnRate.OnServerEvent:Connect(function(player, rate)
     -- some security to only allow current controller to edit
     if player ~= currentController then
         return
     end
-    
+
     conveyorModel:SetAttribute("SpawnInterval", rate)
 end)

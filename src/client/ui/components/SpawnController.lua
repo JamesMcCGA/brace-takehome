@@ -10,36 +10,31 @@ local React = require(Packages.React)
 local useState = React.useState
 local useEffect = React.useEffect
 
-local function SpawnController()
-    print("[SpawnController] Component rendering for", game.Players.LocalPlayer.Name)
+local CONTROLLER_POLL_INTERVAL = 0.5
 
+local function SpawnController()
 	local isVisible, setIsVisible = useState(false)
 	local spawnRate, setSpawnRate = useState(1)
 
 	local remotes = ReplicatedStorage:WaitForChild("Remotes")
 	local SetSpawnRate = remotes:WaitForChild("SetSpawnRate")
-	local DesignateController = remotes:WaitForChild("DesignateController")
 
-    DesignateController.OnClientEvent:Connect(function(isController)
-        print("[SpawnController] Received event, isController =", isController)
-        setIsVisible(isController)
-    end)
-
-    -- listen for a controller being designated
 	useEffect(function()
-        local remotes = ReplicatedStorage:WaitForChild("Remotes")
-        local DesignateController = remotes:WaitForChild("DesignateController")
-        
-        print("[SpawnController] Listening on:", DesignateController:GetFullName())
-        
-        local connection = DesignateController.OnClientEvent:Connect(function(isController)
-            print("[SpawnController] Received event, isController =", isController)
-            setIsVisible(isController)
-        end)
-        return function()
-            connection:Disconnect()
-        end
-    end, {})
+		local GetControllerStatus = remotes:WaitForChild("GetControllerStatus")
+
+		local running = true
+		task.spawn(function()
+			while running do
+				local isController = GetControllerStatus:InvokeServer()
+				setIsVisible(isController)
+				task.wait(CONTROLLER_POLL_INTERVAL)
+			end
+		end)
+
+		return function()
+			running = false
+		end
+	end, {})
 
 	local function updateRate(newRate: number)
 		local clamped = math.clamp(newRate, 0.1, 10)
