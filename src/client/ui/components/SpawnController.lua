@@ -11,6 +11,8 @@ local useState = React.useState
 local useEffect = React.useEffect
 
 local function SpawnController()
+    print("[SpawnController] Component rendering for", game.Players.LocalPlayer.Name)
+
 	local isVisible, setIsVisible = useState(false)
 	local spawnRate, setSpawnRate = useState(1)
 
@@ -18,15 +20,26 @@ local function SpawnController()
 	local SetSpawnRate = remotes:WaitForChild("SetSpawnRate")
 	local DesignateController = remotes:WaitForChild("DesignateController")
 
+    DesignateController.OnClientEvent:Connect(function(isController)
+        print("[SpawnController] Received event, isController =", isController)
+        setIsVisible(isController)
+    end)
+
     -- listen for a controller being designated
 	useEffect(function()
-		local connection = DesignateController.OnClientEvent:Connect(function(isController)
-			setIsVisible(isController)
-		end)
-		return function()
-			connection:Disconnect()
-		end
-	end, {})
+        local remotes = ReplicatedStorage:WaitForChild("Remotes")
+        local DesignateController = remotes:WaitForChild("DesignateController")
+        
+        print("[SpawnController] Listening on:", DesignateController:GetFullName())
+        
+        local connection = DesignateController.OnClientEvent:Connect(function(isController)
+            print("[SpawnController] Received event, isController =", isController)
+            setIsVisible(isController)
+        end)
+        return function()
+            connection:Disconnect()
+        end
+    end, {})
 
 	local function updateRate(newRate: number)
 		local clamped = math.clamp(newRate, 0.1, 10)

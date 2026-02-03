@@ -15,7 +15,7 @@ local bagFolder: Folder = modelFolder:WaitForChild("Bags")
 local conveyorModel: Model = workspace:WaitForChild("Conveyor")
 local bagSpawnPoint = conveyorModel:WaitForChild("BagSpawn") 
 
-local spawnInterval = conveyorModel:SetAttribute("SpawnInterval", 1) -- hard-coding this for now. will be read from the UI. 
+local spawnInterval = conveyorModel:SetAttribute("SpawnInterval", 1) -- default, is updated via remote event and picked up on the main loop
 
 -- Config
 local BELT_SPEED = 10
@@ -135,6 +135,7 @@ local function startSpawner()
         while true do
             local interval = conveyorModel:GetAttribute("SpawnInterval") or 1
             task.wait(interval)
+            print("[BagHandler] Interval is: " .. interval)
             local bag = spawnBag()
             moveAndDeleteBag(bag)
         end
