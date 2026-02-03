@@ -1,0 +1,41 @@
+# Node.js dependencies
+node_modules/
+
+# Wally (Roblox package manager)
+Packages/
+# wally.lock   # ← usually COMMIT this file
+
+# Rojo / Roblox build outputs
+*.rbxl
+*.rbxlx
+*.rbxm
+*.rbxmx
+sourcemap.json
+.rojo/
+
+# roblox-ts / TypeScript build artifacts
+*.tsbuildinfo
+rbxts_include/
+dist/
+out/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS-specific junk
+.DS_Store
+Thumbs.db
+*.log
+
+# IDE / Editor files
+.idea/
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+
+# Temporary / cache files
+*.tmp
+temp/

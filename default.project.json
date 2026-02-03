@@ -1,20 +1,48 @@
 {
-  "name": "my-game",
-  "tree": {
-    "$className": "DataModel",
-
-    "ReplicatedStorage": {
-      "$path": "src/shared"
-    },
-
-    "ServerScriptService": {
-      "$path": "src/server"
-    },
-
-    "StarterPlayer": {
-      "StarterPlayerScripts": {
-        "$path": "src/client"
-      }
-    }
-  }
+	"name": "my-game",
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"Packages": {
+				"$path": "Packages"
+			},
+			"Shared": {
+				"$path": "src/shared"
+			},
+			"Remotes": {
+				"$className": "Folder",
+				"SetSpawnRate": {
+					"$className": "RemoteEvent"
+				},
+				"DesignateController": {
+					"$className": "RemoteEvent"
+				},
+				"BagClicked": {
+					"$className": "RemoteEvent"
+				}
+			}
+		},
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"Server": {
+				"$path": "src/server"
+			}
+		},
+		"StarterPlayer": {
+			"$className": "StarterPlayer",
+			"StarterPlayerScripts": {
+				"$className": "StarterPlayerScripts",
+				"Client": {
+					"$path": "src/client"
+				}
+			}
+		},
+		"Workspace": {
+			"$className": "Workspace",
+			"$properties": {
+				"FilteringEnabled": true
+			}
+		}
+	}
 }
