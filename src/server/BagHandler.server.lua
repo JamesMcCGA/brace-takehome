@@ -7,54 +7,63 @@ local HttpService = game:GetService("HttpService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
 
-
 -- Variables
 local assetsFolder: Folder = ReplicatedStorage:WaitForChild("Assets")
 local modelFolder: Folder = assetsFolder:WaitForChild("Models")
 local bagFolder: Folder = modelFolder:WaitForChild("Bags")
 local conveyorModel: Model = workspace:WaitForChild("Conveyor")
 local bagSpawnPoint = conveyorModel:WaitForChild("BagSpawn") 
-local bagTemplates: {Model} = {}
 
 local spawnInterval = conveyorModel:SetAttribute("SpawnInterval", 1) -- hard-coding this for now. will be read from the UI. 
 
 -- Config
 local BELT_SPEED = 10
 
--- Verifies the necessary existence of bag models and adds to bagTemplates table for easy access
-local function verifyAndStoreBagModels()
-    for _, child in ipairs(bagFolder:GetChildren()) do
-        if child:IsA("Model") then
-            table.insert(bagTemplates, child)
-        end
-    end
-    
-    if #bagTemplates < 1 then
-        error("No bag models found")
-    end
-end
-
 -- Creates bag model, assigns an ID using the GenerateGUID method from HttpService; set as attribute
 -- Attributes are fine in this instance, could also use object properties if going object oriented
 -- @return The spawned bag model.
 local function spawnBag(): Model
-	local chosenBag = bagTemplates[math.random(#bagTemplates)]
-	local bag = chosenBag:Clone()
+	local bag = bagFolder:WaitForChild("Suitcase"):Clone()
     for _, part in ipairs(bag:GetDescendants()) do
         if part:IsA("BasePart") then
             part.Anchored = true
         end
     end
 
+    -- give the bag an ID and set it to the workplace
 	local bagId = HttpService:GenerateGUID(false)
 	bag:SetAttribute("BagId", bagId)
 	bag:PivotTo(bagSpawnPoint.WorldCFrame)
 	bag.Parent = workspace.SpawnedBags
+
+
+    -- set the bag to a random material & colour
 	local primary = bag.PrimaryPart
-	local originalSize = primary.Size
-	primary.Size = originalSize * 0.01
+    local materials = {
+        Enum.Material.Plastic,
+        Enum.Material.SmoothPlastic,
+        Enum.Material.Fabric,
+        Enum.Material.Metal,
+        Enum.Material.Wood,
+        Enum.Material.Leather,
+    }
+
+    local colours = {
+        Color3.fromRGB(30, 30, 30),      
+        Color3.fromRGB(90, 90, 90),      
+        Color3.fromRGB(140, 140, 140),   
+        Color3.fromRGB(80, 120, 200),  
+        Color3.fromRGB(180, 60, 60),  
+        Color3.fromRGB(60, 160, 100),  
+        Color3.fromRGB(200, 180, 80), 
+    }
+
+    primary.Material = materials[math.random(#materials)]
+    primary.Color = colours[math.random(#colours)]
 
     -- simple spawn animation
+    local originalSize = primary.Size
+	primary.Size = originalSize * 0.01
 	local tween = TweenService:Create(
 		primary,
 		TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
@@ -111,6 +120,7 @@ local function moveAndDeleteBag(bag: Model)
     end)
 end
 
+
 -- Primary spawn loop
 -- Reads from the interval every iteration incase it has changed
 local function startSpawner()
@@ -125,5 +135,4 @@ local function startSpawner()
 end
 
 
-verifyAndStoreBagModels()
 startSpawner()
