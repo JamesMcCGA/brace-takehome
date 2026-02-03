@@ -9,6 +9,7 @@ local RunService = game:GetService("RunService")
 
 -- Variables
 local assetsFolder: Folder = ReplicatedStorage:WaitForChild("Assets")
+local remotesFolder: Folder = ReplicatedStorage:WaitForChild("Remotes")
 local modelFolder: Folder = assetsFolder:WaitForChild("Models")
 local bagFolder: Folder = modelFolder:WaitForChild("Bags")
 local conveyorModel: Model = workspace:WaitForChild("Conveyor")
@@ -36,6 +37,12 @@ local function spawnBag(): Model
 	bag:PivotTo(bagSpawnPoint.WorldCFrame)
 	bag.Parent = workspace.SpawnedBags
 
+    -- register click detector
+    bag.ClickDetector.MouseClick:Connect(function(player)
+        local id = bag:GetAttribute("BagId")
+        print("[Server] Bag clicked - ID:", id)
+        remotesFolder.BagClicked:FireClient(player, id)
+    end)
 
     -- set the bag to a random material & colour
 	local primary = bag.PrimaryPart
