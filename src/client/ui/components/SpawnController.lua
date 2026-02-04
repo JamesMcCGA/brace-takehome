@@ -10,8 +10,6 @@ local React = require(Packages.React)
 local useState = React.useState
 local useEffect = React.useEffect
 
-local CONTROLLER_POLL_INTERVAL = 0.5
-
 local function SpawnController()
 	local isVisible, setIsVisible = useState(false)
 	local spawnRate, setSpawnRate = useState(1)
@@ -20,19 +18,14 @@ local function SpawnController()
 	local SetSpawnRate = remotes:WaitForChild("SetSpawnRate")
 
 	useEffect(function()
-		local GetControllerStatus = remotes:WaitForChild("GetControllerStatus")
+		local DesignateController = remotes:WaitForChild("DesignateController")
 
-		local running = true
-		task.spawn(function()
-			while running do
-				local isController = GetControllerStatus:InvokeServer()
-				setIsVisible(isController)
-				task.wait(CONTROLLER_POLL_INTERVAL)
-			end
+		local connection = DesignateController.OnClientEvent:Connect(function(isController)
+			setIsVisible(isController)
 		end)
 
 		return function()
-			running = false
+			connection:Disconnect()
 		end
 	end, {})
 
